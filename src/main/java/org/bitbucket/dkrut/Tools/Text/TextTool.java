@@ -35,4 +35,12 @@ public class TextTool {
         editFile.delete();
         temporaryFile.renameTo(editFile);
     }
+
+    public String stringParser(String string, String separator, int wordNumber){
+        String[] stringArray = string.split(separator);
+//        for (String retval : string.split(separator)){
+//            System.out.println(retval);
+//        }
+        return stringArray[wordNumber];
+    }
 }

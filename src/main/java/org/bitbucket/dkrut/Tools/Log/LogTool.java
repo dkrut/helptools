@@ -44,8 +44,13 @@ public class LogTool {
         }
     }
 
-    public Boolean checkLogContains(File file, String logContains) {
+    public Boolean checkLogContainsBoolean(File file, String logContains) {
         while (!(Objects.requireNonNull(tail(file))).contains(logContains));
         return true;
+    }
+
+    public String checkLogContainsString(File file, String logContains) {
+        while (!(Objects.requireNonNull(tail(file))).contains(logContains));
+        return tail(file);
     }
 }

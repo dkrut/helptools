@@ -18,6 +18,7 @@ public class DBTool {
             try (Connection connection = DriverManager.getConnection(url, login, password)) {
                 Statement statement = connection.createStatement();
                 statement.executeUpdate(query);
+                statement.close();
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace(); // обработка ошибки  Class.forName
@@ -38,6 +39,7 @@ public class DBTool {
             try (Connection connection = DriverManager.getConnection(url, login, password)) {
                 Statement statement = connection.createStatement();
                 statement.executeUpdate(query);
+                statement.close();
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace(); // обработка ошибки  Class.forName
@@ -62,6 +64,8 @@ public class DBTool {
                 if (result.next()) {
                     return result.getString(columnName);
                 }
+                result.close();
+                statement.close();
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace(); // обработка ошибки  Class.forName
@@ -88,6 +92,8 @@ public class DBTool {
                 if (result.next()) {
                     return result.getString(columnName);
                 }
+                result.close();
+                statement.close();
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace(); // обработка ошибки  Class.forName

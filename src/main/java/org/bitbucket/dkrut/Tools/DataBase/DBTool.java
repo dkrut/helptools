@@ -59,7 +59,7 @@ public class DBTool {
                 Statement statement = connection.createStatement();
                 ResultSet result = statement.executeQuery(query);
 
-                while (result.next()) {
+                if (result.next()) {
                     return result.getString(columnName);
                 }
             }
@@ -85,7 +85,7 @@ public class DBTool {
                 Statement statement = connection.createStatement();
                 ResultSet result = statement.executeQuery(query);
 
-                while (result.next()) {
+                if (result.next()) {
                     return result.getString(columnName);
                 }
             }

@@ -11,46 +11,30 @@ import java.util.Objects;
 
 public class LogTool {
 
-    private String tail(File file) {
-        try(RandomAccessFile fileHandler = new RandomAccessFile(file, "r")) {
-            long fileLength = fileHandler.length() - 1;
-            StringBuilder sb = new StringBuilder();
-
-            for (long filePointer = fileLength; filePointer != -1; filePointer--) {
-                fileHandler.seek(filePointer);
-                int readByte = fileHandler.readByte();
-
-                if (readByte == 0xA) {
-                    if (filePointer == fileLength) {
-                        continue;
-                    }
-                    break;
-
-                } else if (readByte == 0xD) {
-                    if (filePointer == fileLength - 1) {
-                        continue;
-                    }
-                    break;
-                }
-
-                sb.append((char) readByte);
+    public String readLastLine(File file) {
+        String result;
+        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+            result = null;
+            long startIdx = file.length();
+            while (result == null || result.length() == 0) {
+                raf.seek(startIdx--);
+                raf.readLine();
+                result = raf.readLine();
             }
-
-            return sb.reverse().toString();
-
+            return new String(result.getBytes("ISO-8859-1"), "UTF-8"); //convert result into utf-8
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     public Boolean checkLogContainsBoolean(File file, String logContains) {
-        while (!(Objects.requireNonNull(tail(file))).contains(logContains));
+        while (!(Objects.requireNonNull(readLastLine(file))).contains(logContains));
         return true;
     }
 
     public String checkLogContainsString(File file, String logContains) {
-        while (!(Objects.requireNonNull(tail(file))).contains(logContains));
-        return tail(file);
+        while (!(Objects.requireNonNull(readLastLine(file))).contains(logContains));
+        return readLastLine(file);
     }
 }

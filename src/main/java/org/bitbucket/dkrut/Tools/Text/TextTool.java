@@ -43,4 +43,18 @@ public class TextTool {
 //        }
         return stringArray[wordNumber];
     }
+
+    public Integer linesCount(File file) {
+        try {
+            LineNumberReader lnr = new LineNumberReader(new FileReader(file));
+            int linesCount = 0;
+            while(lnr.readLine() != null) {
+                linesCount++;
+            }
+            return linesCount;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }

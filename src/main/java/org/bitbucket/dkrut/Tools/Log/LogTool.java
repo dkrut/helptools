@@ -2,6 +2,8 @@ package org.bitbucket.dkrut.Tools.Log;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by Denis Krutikov on 20.01.2019.
@@ -84,25 +86,31 @@ public class LogTool {
     }
 
     //return true if string contains that you need
-    public Boolean checkLogContainsBoolean(File logFile, long readFromChar, String logContains) {
-        while (!(getLogFileStringFrom(logFile, readFromChar)).contains(logContains));
-        return true;
+    public Boolean checkLogContainsBoolean(File logFile, long readFromChar, String logContains, int timeoutSeconds) throws TimeoutException {
+        long stop = System.nanoTime()+ TimeUnit.SECONDS.toNanos(timeoutSeconds);
+        while (!(getLogFileStringFrom(logFile, readFromChar)).contains(logContains) && stop > System.nanoTime());
+        if ((getLogFileStringFrom(logFile, readFromChar)).contains(logContains)) return true;
+        else throw new TimeoutException("Time out in " + timeoutSeconds + " seconds");
     }
 
     //return line of multiline string, that contains that you need
-    public String checkLogContainsString(File logFile, long readFromChar, String logContains) {
-        while (!(getLogFileStringFrom(logFile, readFromChar)).contains(logContains));
-        String[] linesArray = getLogFileStringFrom(logFile, readFromChar).split("\n");
-        int i = 0;
-        while (!(linesArray[i].contains(logContains))){
-            i++;
+    public String checkLogContainsString(File logFile, long readFromChar, String logContains, int timeoutSeconds) throws TimeoutException {
+        long stop = System.nanoTime()+ TimeUnit.SECONDS.toNanos(timeoutSeconds);
+        while (!(getLogFileStringFrom(logFile, readFromChar)).contains(logContains) && stop > System.nanoTime());
+        if ((getLogFileStringFrom(logFile, readFromChar)).contains(logContains)) {
+            String[] linesArray = getLogFileStringFrom(logFile, readFromChar).split("\n");
+            int i = 0;
+            while (!(linesArray[i].contains(logContains))) {
+                i++;
+            }
+            return linesArray[i];
         }
-        return linesArray[i];
+        else throw new TimeoutException("Time out in " + timeoutSeconds + " seconds");
     }
 
     //wait string, that you need, then parse it and return word
-    public String checkLogContainsStringAndParseIt(File logFile, long readFromChar, String logContains, String separator, int wordNumber) {
-        while (!checkLogContainsBoolean(logFile, readFromChar, logContains));
+    public String checkLogContainsStringAndParseIt(File logFile, long readFromChar, String logContains, String separator, int wordNumber, int timeoutSeconds) throws TimeoutException {
+        while (!checkLogContainsBoolean(logFile, readFromChar, logContains, timeoutSeconds));
         return stringParserFromLogFile(getLogFileStringFrom(logFile, readFromChar), logContains, separator, wordNumber);
     }
 

@@ -3,6 +3,7 @@ package com.github.dkrut.Tools.CmdTool;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 /**
  * Created by Denis Krutikov on 21.01.2019.
@@ -12,27 +13,28 @@ public class CmdTool {
 
     public void executeCommand(String command) {
         try {
-            Runtime rt = Runtime.getRuntime();
-            Process p = rt.exec("cmd /c " + command);
-            BufferedReader stdInput = new BufferedReader(new
-                    InputStreamReader(p.getInputStream()));
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new
+                    InputStreamReader(process.getInputStream()));
+            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public String getCommandOutput(String command) {
-        String result;
         try {
-            Runtime rt = Runtime.getRuntime();
-            Process p = rt.exec("cmd /c " + command);
-            BufferedReader stdInput = new BufferedReader(new
-                    InputStreamReader(p.getInputStream()));
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
 
-            while ((result = stdInput.readLine()) != null) {
-            return result;
+            ArrayList output = new ArrayList();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.add(line);
             }
-            System.exit(0);
+            reader.close();
+            return  String.join("\n", output);
         } catch (IOException e) {
             e.printStackTrace();
         }

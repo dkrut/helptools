@@ -1,4 +1,4 @@
-package org.bitbucket.dkrut.Tools.DataBase;
+package com.github.dkrut.Tools.DataBase;
 
 import java.sql.*;
 

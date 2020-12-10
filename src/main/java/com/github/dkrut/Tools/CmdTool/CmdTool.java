@@ -1,4 +1,4 @@
-package org.bitbucket.dkrut.Tools.CmdTool;
+package com.github.dkrut.Tools.CmdTool;
 
 import java.io.BufferedReader;
 import java.io.IOException;

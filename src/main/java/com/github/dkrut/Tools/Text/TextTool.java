@@ -1,4 +1,4 @@
-package org.bitbucket.dkrut.Tools.Text;
+package com.github.dkrut.Tools.Text;
 
 import java.io.*;
 

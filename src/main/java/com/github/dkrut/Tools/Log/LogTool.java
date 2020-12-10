@@ -1,4 +1,4 @@
-package org.bitbucket.dkrut.Tools.Log;
+package com.github.dkrut.Tools.Log;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

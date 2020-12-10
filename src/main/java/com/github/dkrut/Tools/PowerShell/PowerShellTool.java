@@ -1,4 +1,4 @@
-package org.bitbucket.dkrut.Tools.PowerShell;
+package com.github.dkrut.Tools.PowerShell;
 
 import com.profesorfalken.jpowershell.PowerShell;
 

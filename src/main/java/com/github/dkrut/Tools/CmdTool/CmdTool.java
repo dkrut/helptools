@@ -11,9 +11,9 @@ import java.util.ArrayList;
 
 public class CmdTool {
 
-    public void executeCommand(String command) {
+    public void executeFIle(String file) {
         try {
-            Process process = Runtime.getRuntime().exec(command);
+            Process process = Runtime.getRuntime().exec(file);
             BufferedReader reader = new BufferedReader(new
                     InputStreamReader(process.getInputStream()));
             reader.close();
@@ -22,9 +22,42 @@ public class CmdTool {
         }
     }
 
+    public void executeCommand(String command) {
+        try {
+            ProcessBuilder builder = new ProcessBuilder(
+                    "cmd.exe", "/c", command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public String getCommandOutput(String command) {
         try {
-            Process process = Runtime.getRuntime().exec(command);
+            ProcessBuilder builder = new ProcessBuilder(
+                    "cmd.exe", "/c", command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            ArrayList output = new ArrayList();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.add(line);
+            }
+            reader.close();
+            return  String.join("\n", output);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getFileOutput(String file) {
+        try {
+            Process process = Runtime.getRuntime().exec(file);
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()));
 

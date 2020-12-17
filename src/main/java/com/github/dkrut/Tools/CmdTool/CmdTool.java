@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class CmdTool {
 
-    public void executeFIle(String file) {
+    public static void executeFIle(String file) {
         try {
             Process process = Runtime.getRuntime().exec(file);
             BufferedReader reader = new BufferedReader(new
@@ -22,7 +22,7 @@ public class CmdTool {
         }
     }
 
-    public void executeCommand(String command) {
+    public static void executeCommand(String command) {
         try {
             ProcessBuilder builder = new ProcessBuilder(
                     "cmd.exe", "/c", command);
@@ -35,7 +35,7 @@ public class CmdTool {
         }
     }
 
-    public String getCommandOutput(String command) {
+    public static String getCommandOutput(String command) {
         try {
             ProcessBuilder builder = new ProcessBuilder(
                     "cmd.exe", "/c", command);
@@ -55,7 +55,7 @@ public class CmdTool {
         return null;
     }
 
-    public String getFileOutput(String file) {
+    public static String getFileOutput(String file) {
         try {
             Process process = Runtime.getRuntime().exec(file);
             BufferedReader reader = new BufferedReader(

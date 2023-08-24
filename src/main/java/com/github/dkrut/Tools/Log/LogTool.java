@@ -1,134 +1,126 @@
 package com.github.dkrut.Tools.Log;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-/**
- * Created by Denis Krutikov on 20.01.2019.
- */
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LogTool {
-
-    public String getLastLine(File logFile) {
-        String result;
-        try (RandomAccessFile raf = new RandomAccessFile(logFile, "r")) {
-            result = null;
-            long startIdx = logFile.length();
-            while (result == null || result.length() == 0) {
-                raf.seek(startIdx--);
-                raf.readLine();
-                result = raf.readLine();
+    /**
+     * @param logFile file to read
+     * @return last line number
+     */
+    public long getLastLineNumber(File logFile) {
+        long lastLine = 0;
+        try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
+            while (br.readLine() != null) {
+                lastLine++;
             }
-            return new String(result.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8); //convert result into utf-8
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return lastLine;
     }
 
-    public Boolean checkLastLineLogContainsBoolean(File logFile, String logContains) {
-        while (!(getLastLine(logFile)).contains(logContains));
-        return true;
-    }
-
-    public String checkLastLineLogContainsString(File LogFile, String logContains) {
-        while (!(getLastLine(LogFile)).contains(logContains));
-        return getLastLine(LogFile);
-    }
-
-
-    public long getLogFileCharCount(File logFile){
-        return logFile.length();
-    }
-
-    //return string from whole file
-    public String getLogFileString(File file) {
-        try {
-            RandomAccessFile raf = new RandomAccessFile(file, "r");
-            StringBuilder result = new StringBuilder();
-            int b = raf.read();
-            //read the chars bit by bit and add them to the string
-            while (b != -1) {
-                result.append((char) b);
-                b = raf.read();
+    /**
+     * @param logFile file to read
+     * @return index of last char logFile
+     */
+    public long getLastIndex(File logFile) {
+        long lastIndex = 0;
+        try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                lastIndex = logFile.length() - line.getBytes().length - 2;
             }
-            raf.close();
-            return new String(result.toString().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8); //convert result into utf-8
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return lastIndex;
+    }
 
-        }
-
-    //return string from file starts with a specific char
-    public String getLogFileStringFrom(File logFile, long charNumber) {
-        try {
-            RandomAccessFile raf = new RandomAccessFile(logFile, "r");
-            StringBuilder result = new StringBuilder();
-            //put a pointer to the desired char
-            raf.seek(charNumber);
-            int b = raf.read();
-
-            //read the chars bit by bit and add them to the string
-            while (b != -1) {
-                result.append((char) b);
-                b = raf.read();
+    /**
+     * @param logFile    file to read
+     * @param lineNumber number of line
+     * @return value of line number
+     */
+    public String getLine(File logFile, long lineNumber) {
+        String value = null;
+        try (BufferedReader br = new BufferedReader(new FileReader(logFile))) {
+            int currentLineNumber = 1;
+            while ((value = br.readLine()) != null) {
+                if (currentLineNumber == lineNumber) {
+                    break;
+                }
+                currentLineNumber++;
             }
-            raf.close();
-            return new String(result.toString().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8); //convert result into utf-8
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return  null;
+        return value;
     }
 
-    //return true if string contains that you need
-    public Boolean checkLogContainsBoolean(File logFile, long readFromChar, String logContains, int timeoutSeconds) throws TimeoutException {
-        long stop = System.nanoTime()+ TimeUnit.SECONDS.toNanos(timeoutSeconds);
-        while (!(getLogFileStringFrom(logFile, readFromChar)).contains(logContains) && stop > System.nanoTime());
-        if ((getLogFileStringFrom(logFile, readFromChar)).contains(logContains)) return true;
-        else throw new TimeoutException("Time out in " + timeoutSeconds + " seconds");
+    /**
+     * @param logFile file to read
+     * @param index   char index to start read file
+     * @return string from file starts with a specific index
+     */
+    public String getStringFromIndex(File logFile, long index) {
+        StringBuilder result = new StringBuilder();
+        try (RandomAccessFile raf = new RandomAccessFile(logFile, "r")) {
+            raf.seek(index);
+            int byteOfData = raf.read();
+            while (byteOfData != -1) {
+                result.append((char) byteOfData);
+                byteOfData = raf.read();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result.toString();
     }
 
-    //return line of multiline string, that contains that you need
-    public String checkLogContainsString(File logFile, long readFromChar, String logContains, int timeoutSeconds) throws TimeoutException {
-        long stop = System.nanoTime()+ TimeUnit.SECONDS.toNanos(timeoutSeconds);
-        while (!(getLogFileStringFrom(logFile, readFromChar)).contains(logContains) && stop > System.nanoTime());
-        if ((getLogFileStringFrom(logFile, readFromChar)).contains(logContains)) {
-            String[] linesArray = getLogFileStringFrom(logFile, readFromChar).split("\n");
+    /**
+     * @param logFile file to read
+     * @param index   char index to start read file
+     * @param value   find value in string
+     * @return true if log from specific index contains value
+     */
+    public boolean assertContainsValue(File logFile, long index, String value) {
+        return (getStringFromIndex(logFile, index)).contains(value);
+    }
+
+    /**
+     * @param logFile file to read
+     * @param index   char index to start read file
+     * @param value   find value in line
+     * @return first line of multiline string, that contains value that you need
+     */
+    public String lineWithValue(File logFile, long index, String value) {
+        String log = getStringFromIndex(logFile, index);
+        if (log.contains(value)) {
+            String[] linesArray = log.split("\n");
             int i = 0;
-            while (!(linesArray[i].contains(logContains))) {
+            while (!(linesArray[i].contains(value))) {
                 i++;
             }
             return linesArray[i];
+        } else {
+            return null;
         }
-        else throw new TimeoutException("Time out in " + timeoutSeconds + " seconds");
     }
 
-    //wait string, that you need, then parse it and return word
-    public String checkLogContainsStringAndParseIt(File logFile, long readFromChar, String logContains, String separator, int wordNumber, int timeoutSeconds) throws TimeoutException {
-        while (!checkLogContainsBoolean(logFile, readFromChar, logContains, timeoutSeconds));
-        return stringParserFromLogFile(getLogFileStringFrom(logFile, readFromChar), logContains, separator, wordNumber);
-    }
-
-    public String stringParser(String string, String separator, int wordNumber){
-        String[] stringArray = string.split(separator);
-//        for (String retval : string.split(separator)){
-//            System.out.println(retval);
-//        }
-        return stringArray[wordNumber];
-    }
-
-    //parsing line of multiline string and return word
-    public String stringParserFromLogFile(String string, String logContains, String separator, int wordNumber){
-        String[] linesArray = string.split("\n");
-        int i = 0;
-        while (!(linesArray[i].contains(logContains))){
-            i++;
+    /**
+     * @param line  line of logfile to parse
+     * @param regex regular expression to parse line
+     * @return result of parsing
+     */
+    public String parseLine(String line, String regex) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(line);
+        if (matcher.find()) {
+            return matcher.group();
+        } else {
+            return null;
         }
-        return stringParser(linesArray[i], separator, wordNumber);
     }
 }

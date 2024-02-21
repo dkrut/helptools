@@ -14,7 +14,7 @@
 
         <jpowershell.version>3.1.1</jpowershell.version>
         <mssql-jdbc.version>12.4.0.jre11</mssql-jdbc.version>
-        <postgresql.version>42.6.0</postgresql.version>
+        <postgresql.version>42.7.2</postgresql.version>
 
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     </properties>
